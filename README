@@ -1,2 +1,28 @@
-A simple NLP system, nothing serious. The ideas are summarized in: http://91.203.212.130/model_of_mind/MOM.pdf
+A simple NLP system, the ideas are summarized in: http://91.203.212.130/model_of_mind/MOM.pdf
 Under MIT license.
+
+Example translations from text to Narsese it is able to carry out:
+
+the cat is cute and fluffy
+(&&,<cat --> cute>,<cat --> fluffy>)
+
+sam is a professor and a good teacher
+(&&,<sam --> professor>,<sam --> (&,good,teacher)>).
+
+someone is a murder if he kills a human
+<<(*,$1,human) --> kills> ==> <$1 --> murder>>
+
+michael is reading books in the library
+(&&,<(*,michael,library) --> in>,<michael --> (*,reading,books)>
+
+the yellow car is in the blue garage
+<(*,(&,yellow,car),(&,blue,garage)) --> in>
+
+something is a right triangle if it has 3 edges and it has a 90-degree angle
+<(&&,<(*,$1,(&,3,edges)) --> has>,<(*,$1,(&,90-degree,angle)) --> has>) ==> <$1 --> (&,right,triangle)>>.
+
+X is in Z if X is in Y and Y is in Z
+<(&&,<(*,$X,$Z) --> in>,<(*,$Z,$Y) --> in>) ==> <(*,$X,$Y) --> in>>.
+
+what is in the garage?
+<(*,?1,garage) --> in>
