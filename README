@@ -1,5 +1,5 @@
 A simple NLP system for NARS, the ideas are summarized in: http://91.203.212.130/model_of_mind/MOM.pdf
-Under MIT license.
+
 
 Example translations from text to Narsese it is able to carry out:
 
@@ -26,3 +26,5 @@ X is in Z if X is in Y and Y is in Z
 
 what is in the garage?
 <(*,?1,garage) --> in>
+
+The project is under MIT license.
