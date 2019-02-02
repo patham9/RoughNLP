@@ -1,4 +1,5 @@
 A simple NLP system for NARS, the ideas are summarized in: http://91.203.212.130/model_of_mind/MOM.pdf
+Note that it was originally developed for Prolog, only the language part in the pdf still applies, none of the reasoning ideas.
 
 Example translations from text to Narsese it is able to carry out:
 
