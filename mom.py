@@ -7,84 +7,99 @@ import sys
 import time
 import itertools
 from MOM_def import *
+import os.path
+import cPickle as pickle
 proc = None
 
-#ok form conjunctions thereof:
-#Support for implication (AFTER):
-indices = ["{"+str(i)+"}" for i in range(50)]
-Forms2=[]
-for a in BasicForms:
-    for b in BasicForms:
-        NewB = [x for x in b]
-        #1. get the maximum of a
-        k=-1
-        h=0
-        for ind in indices:
-            #print ind, a[1]
-            if ind in a[1]:
-                k=h
-            h+=1
-        #2. add the maximum+2 to the indices
-        #print NewB[1],k,len(indices),len(indices)-1-1-k
-        for i in range(len(indices)-10-k,0-1,-1):
-            NewB[1]=NewB[1].replace(indices[i],indices[i+k+2])
-        #print NewB[1]
-        NewB[0] = a[0] + " AND " + b[0]
-        NewB[1] = "(&&," + a[1] + "," + NewB[1] + ")" 
-        Forms2.append(NewB)
-        #print NewB
+fname="RULES.obj"
+if not os.path.isfile(fname):
+    
+    #ok form conjunctions thereof:
+    #Support for implication (AFTER):
+    indices = ["{"+str(i)+"}" for i in range(50)]
+    Forms2=[]
+    for a in BasicForms:
+        for b in BasicForms:
+            NewB = [x for x in b]
+            #1. get the maximum of a
+            k=-1
+            h=0
+            for ind in indices:
+                #print ind, a[1]
+                if ind in a[1]:
+                    k=h
+                h+=1
+            #2. add the maximum+2 to the indices
+            #print NewB[1],k,len(indices),len(indices)-1-1-k
+            for i in range(len(indices)-10-k,0-1,-1):
+                NewB[1]=NewB[1].replace(indices[i],indices[i+k+2])
+            #print NewB[1]
+            NewB[0] = a[0] + " AND " + b[0]
+            NewB[1] = "(&&," + a[1] + "," + NewB[1] + ")" 
+            Forms2.append(NewB)
+            #print NewB
 
-for F in ExtraForms:
-    Forms2.insert(0,F)
+    for F in ExtraForms:
+        Forms2.insert(0,F)
 
-#Support for OR:
-Forms3=[]
-for F in Forms2:
-    Forms3.append(F)
-    F=[x for x in F]
-    F[0]=F[0].replace("AND","OR")
-    F[1]=F[1].replace("&&","||")
-    Forms3.append(F)
+    #Support for OR:
+    Forms3=[]
+    for F in Forms2:
+        Forms3.append(F)
+        F=[x for x in F]
+        F[0]=F[0].replace("AND","OR")
+        F[1]=F[1].replace("&&","||")
+        Forms3.append(F)
 
-#debug:
-#Forms3=[['N N N AND N', '<(*,{0},(&,{2},{4})) --> {1}>', 'sam likes tim and tom'],
-#['N IS N', '<{0} --> {2}>', 'house is old']]
+    #debug:
+    #Forms3=[['N N N AND N', '<(*,{0},(&,{2},{4})) --> {1}>', 'sam likes tim and tom'],
+    #['N IS N', '<{0} --> {2}>', 'house is old']]
 
-for F in BasicForms:
-    Forms3.insert(0,F)
+    for F in BasicForms:
+        Forms3.insert(0,F)
 
-#Support for implication (AFTER):
-indices = ["{"+str(i)+"}" for i in range(50)]
-Rules=[]
-for a in Forms3:
-    Rules.append(a)
-    for b in Forms3:
-        NewB = [x for x in b]
-        #1. get the maximum of a
-        k=-1
-        h=0
-        for ind in indices:
-            #print ind, a[1]
-            if ind in a[1]:
-                k=h
-            h+=1
-        #2. add the maximum+2 to the indices
-        #print NewB[1],k,len(indices),len(indices)-1-1-k
-        for i in range(len(indices)-10-k,0-1,-1):
-            NewB[1]=NewB[1].replace(indices[i],indices[i+k+2])
-        #print NewB[1]
-        NewB[0] = a[0] + " AFTER " + b[0]
-        NewB[1] = "<" + NewB[1] + " ==> " + a[1] + ">" 
-        Rules.append(NewB)
-        #if NewB[0] == "N N N AFTER N N N":
-        #    print NewB[0]
-        #print NewB
+    #Support for implication (AFTER):
+    indices = ["{"+str(i)+"}" for i in range(50)]
+    Rules=[]
+    for a in Forms3:
+        Rules.append(a)
+        for b in Forms3:
+            NewB = [x for x in b]
+            #1. get the maximum of a
+            k=-1
+            h=0
+            for ind in indices:
+                #print ind, a[1]
+                if ind in a[1]:
+                    k=h
+                h+=1
+            #2. add the maximum+2 to the indices
+            #print NewB[1],k,len(indices),len(indices)-1-1-k
+            for i in range(len(indices)-10-k,0-1,-1):
+                NewB[1]=NewB[1].replace(indices[i],indices[i+k+2])
+            #print NewB[1]
+            NewB[0] = a[0] + " AFTER " + b[0]
+            NewB[1] = "<" + NewB[1] + " ==> " + a[1] + ">" 
+            Rules.append(NewB)
+            #if NewB[0] == "N N N AFTER N N N":
+            #    print NewB[0]
+            #print NewB
 
-print len(Rules)
+    print len(Rules)
+    for z in Rules:
+        z[2]=''
+    file_pi = open(fname, 'w') 
+    pickle.dump(Rules, file_pi)
+else:
+    #print "loading rules not yet implemented, remove RULES.obj and start the sys again"
+    filehandler = open(fname, 'r') 
+    Rules = pickle.load(filehandler)
+    filehandler.close()
+
 #devug:
-for z in Rules:
-    if z[0] == "N N N AFTER N N N":
-       print z
+#for z in Rules:
+#    if z[0] == "N N N AFTER N N N":
+#       print z
 
 ReplaceRequest(lambda s,arg: [d.split("=")[1].replace(",","") for d in eval(PrettyTell(s)) if "=" in d and d.split("=")[0]==arg])
 regexp_tag=lambda w: (j[1] for j in Types if re.match(j[0],w)!=None).next()
@@ -247,7 +262,11 @@ while 1!=0:
 		else: print toWrite
 	else:
 		print str(Tell(txt))
-        
+
+ENABLE_NARS="enable nars"
+DISABLE_NARS="disable nars"
+enabled = False
+
 while True:
     try:
         text=irc.recv(2040)
@@ -282,7 +301,15 @@ while True:
                 else:
                     print "NAR input: "+TEXT
                     try:
-                        Tell(TEXT.strip()) #was: proc.stdin.write
+                        changed_now = False
+                        if ENABLE_NARS in TEXT:
+                            enabled = True
+                            changed_now = True
+                        if DISABLE_NARS in TEXT:
+                            enabled = False
+                            changed_now = True
+                        if enabled and not changed_now:
+                            Tell(TEXT.strip()) #was: proc.stdin.write
                     except:
                         print "err"
                         None
