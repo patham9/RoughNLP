@@ -7,84 +7,101 @@ import sys
 import time
 import itertools
 from MOM_def import *
+import os.path
+import cPickle as pickle
 proc = None
 
-#ok form conjunctions thereof:
-#Support for implication (AFTER):
-indices = ["{"+str(i)+"}" for i in range(50)]
-Forms2=[]
-for a in BasicForms:
-    for b in BasicForms:
-        NewB = [x for x in b]
-        #1. get the maximum of a
-        k=-1
-        h=0
-        for ind in indices:
-            #print ind, a[1]
-            if ind in a[1]:
-                k=h
-            h+=1
-        #2. add the maximum+2 to the indices
-        #print NewB[1],k,len(indices),len(indices)-1-1-k
-        for i in range(len(indices)-10-k,0-1,-1):
-            NewB[1]=NewB[1].replace(indices[i],indices[i+k+2])
-        #print NewB[1]
-        NewB[0] = a[0] + " AND " + b[0]
-        NewB[1] = "(&&," + a[1] + "," + NewB[1] + ")" 
-        Forms2.append(NewB)
-        #print NewB
+fname="RULES.obj"
+if not os.path.isfile(fname):
+    
+    #ok form conjunctions thereof:
+    #Support for implication (AFTER):
+    indices = ["{"+str(i)+"}" for i in range(50)]
+    Forms2=[]
+    for a in BasicForms:
+        for b in BasicForms:
+            NewB = [x for x in b]
+            #1. get the maximum of a
+            k=-1
+            h=0
+            for ind in indices:
+                #print ind, a[1]
+                if ind in a[1]:
+                    k=h
+                h+=1
+            #2. add the maximum+2 to the indices
+            #print NewB[1],k,len(indices),len(indices)-1-1-k
+            for i in range(len(indices)-10-k,0-1,-1):
+                NewB[1]=NewB[1].replace(indices[i],indices[i+k+2])
+            #print NewB[1]
+            NewB[0] = a[0] + " AND " + b[0]
+            NewB[1] = "(&&," + a[1] + "," + NewB[1] + ")" 
+            Forms2.append(NewB)
+            #print NewB
 
-for F in ExtraForms:
-    Forms2.insert(0,F)
+    for F in ExtraForms:
+        Forms2.insert(0,F)
 
-#Support for OR:
-Forms3=[]
-for F in Forms2:
-    Forms3.append(F)
-    F=[x for x in F]
-    F[0]=F[0].replace("AND","OR")
-    F[1]=F[1].replace("&&","||")
-    Forms3.append(F)
+    #Support for OR:
+    Forms3=[]
+    for F in Forms2:
+        Forms3.append(F)
+        #F=[x for x in F]
+        #F[0]=F[0].replace("AND","OR")
+        #F[1]=F[1].replace("&&","||")
+        #Forms3.append(F)
 
-#debug:
-#Forms3=[['N N N AND N', '<(*,{0},(&,{2},{4})) --> {1}>', 'sam likes tim and tom'],
-#['N IS N', '<{0} --> {2}>', 'house is old']]
+    #debug:
+    #Forms3=[['N N N AND N', '<(*,{0},(&,{2},{4})) --> {1}>', 'sam likes tim and tom'],
+    #['N IS N', '<{0} --> {2}>', 'house is old']]
 
-for F in BasicForms:
-    Forms3.insert(0,F)
+    for F in BasicForms:
+        Forms3.insert(0,F)
 
-#Support for implication (AFTER):
-indices = ["{"+str(i)+"}" for i in range(50)]
-Rules=[]
-for a in Forms3:
-    Rules.append(a)
-    for b in Forms3:
-        NewB = [x for x in b]
-        #1. get the maximum of a
-        k=-1
-        h=0
-        for ind in indices:
-            #print ind, a[1]
-            if ind in a[1]:
-                k=h
-            h+=1
-        #2. add the maximum+2 to the indices
-        #print NewB[1],k,len(indices),len(indices)-1-1-k
-        for i in range(len(indices)-10-k,0-1,-1):
-            NewB[1]=NewB[1].replace(indices[i],indices[i+k+2])
-        #print NewB[1]
-        NewB[0] = a[0] + " AFTER " + b[0]
-        NewB[1] = "<" + NewB[1] + " ==> " + a[1] + ">" 
-        Rules.append(NewB)
-        #if NewB[0] == "N N N AFTER N N N":
-        #    print NewB[0]
-        #print NewB
+    #Support for implication (AFTER):
+    indices = ["{"+str(i)+"}" for i in range(50)]
+    Rules=[]
+    for a in Forms3:
+        Rules.append(a)
+        for b in Forms3:
+            NewB = [x for x in b]
+            #1. get the maximum of a
+            k=-1
+            h=0
+            for ind in indices:
+                #print ind, a[1]
+                if ind in a[1]:
+                    k=h
+                h+=1
+            #2. add the maximum+2 to the indices
+            #print NewB[1],k,len(indices),len(indices)-1-1-k
+            for i in range(len(indices)-10-k,0-1,-1):
+                NewB[1]=NewB[1].replace(indices[i],indices[i+k+2])
+            #print NewB[1]
+            NewB[0] = a[0] + " AFTER " + b[0]
+            NewB[1] = "<" + NewB[1] + " ==> " + a[1] + ">" 
+            Rules.append(NewB)
+            #if NewB[0] == "N N N AFTER N N N":
+            #    print NewB[0]
+            #print NewB
 
-print len(Rules)
+    print len(Rules)
+    for z in Rules:
+        z[2]=''
+    file_pi = open(fname, 'w') 
+    pickle.dump(Rules, file_pi)
+    file_pi.close()
+else:
+    #print "loading rules not yet implemented, remove RULES.obj and start the sys again"
+    filehandler = open(fname, 'r') 
+    Rules = pickle.load(filehandler)
+    filehandler.close()
+
+print "rules: ",len(Rules)
 #devug:
-for z in Rules:
-    if z[0] == "N N N AFTER N N N":
-       print z
+#for z in Rules:
+#    if z[0] == "N N N AFTER N N N":
+#       print z
 
 ReplaceRequest(lambda s,arg: [d.split("=")[1].replace(",","") for d in eval(PrettyTell(s)) if "=" in d and d.split("=")[0]==arg])
 regexp_tag=lambda w: (j[1] for j in Types if re.match(j[0],w)!=None).next()
@@ -118,10 +135,12 @@ def TrainTagger(bQuestion,Rs):
         if Rs[0].isupper(): Repres+=[(Rs[0]," "+Rs[1]+" ")]; return True      #bicycle CYCLE; fahhrad CYCLE; CYCLE cycle => cycle=bicycle=fahrrad
         if Rs[1].isupper(): Types=[("("+Rs[0]+")$",Rs[1])]+Types; return True #word CATEGORY, CATEGORY word, example^
 
-def AddKnowledge(ret, bQuestion,bGoal,bEvent,bPlan):
+def AddKnowledge(ret, bQuestion,bGoal,bEvent,bPlan,bNeg):
     global Knowledge, proc
+    NegPrefix = "(--," if bNeg else ""
+    NegPostfix = ")" if bNeg else ""
     EventPostfix=" :|:" if bGoal or bEvent else ""
-    newknol = ret.replace("T0","T0" if ":-" in ret else "0")
+    newknol = NegPrefix+ret.replace("T0","T0" if ":-" in ret else "0")+NegPostfix
     if bPlan:
         print "WTF"
         newknol=newknol.replace("&&","&/").replace(") ==>",",+5) =/>").replace(",<(*,{SELF}",",+5,<(*,{SELF}")
@@ -148,6 +167,10 @@ synonymadd=False; synonymli=[]; lastSyntax=""; SInput=[]; lastNoun=""
 def Tell(s,ret="",Recursion=False,AddToSentences=True,Offset=0): 
     global Knowledge,synonymadd,synonymli,lastSyntax,SInput
     s=Do_Replacements(s)
+    bNeg = False;
+    if "not" in s or "doesn't" in s:
+        bNeg=True
+        s=s.replace(" not ","").replace(" doesn't ","")
     print s
     bGoal="!" in s
     bEvent="..." in s
@@ -163,14 +186,14 @@ def Tell(s,ret="",Recursion=False,AddToSentences=True,Offset=0):
 		s=eval("re.sub(r'('+'|'.join("+wordtype+")+')','"+replacement+"',' '+s+' ')  if "+wordtype+"!=[] else s")
     words=[z for z in s.split(" ") if z!=""]; syntax=map(regexp_tag,words)
     syntax,words=AssumeReferences(syntax,[d[1]+str(d[0]) if len(d[1])==1 and d[1].isupper() else d[1] for d in enumerate(words)]) #also replace N V and such with enumerated vars
-    print syntax,x_wd_in_s
+    print syntax
     try:
 		ret2=GetMeaning(syntax,s,Offset)
 		ret2,command=ret2.split("$") if "$" in ret2 else (ret2,"")
 		ret=ret2.format(*words) if not Recursion else ret2
 		if bQuestion and not "None" in ret and not Recursion:
-			if not Recursion: AddKnowledge(ret, True,bGoal,bEvent,bPlan)
-		elif not Recursion: AddKnowledge(ret, False,bGoal,bEvent,bPlan)
+			if not Recursion: AddKnowledge(ret, True,bGoal,bEvent,bPlan,bNeg)
+		elif not Recursion: AddKnowledge(ret, False,bGoal,bEvent,bPlan,bNeg)
 		exec (command.format(*words) if not Recursion else "") in locals(),globals()
 		synonymadd=(AddSynonym(syntax,words,ret2) and False) if synonymadd and not Recursion else synonymadd
 		return ret
@@ -247,7 +270,11 @@ while 1!=0:
 		else: print toWrite
 	else:
 		print str(Tell(txt))
-        
+
+ENABLE_NARS="enable nars"
+DISABLE_NARS="disable nars"
+enabled = False
+
 while True:
     try:
         text=irc.recv(2040)
@@ -282,7 +309,15 @@ while True:
                 else:
                     print "NAR input: "+TEXT
                     try:
-                        Tell(TEXT.strip()) #was: proc.stdin.write
+                        changed_now = False
+                        if ENABLE_NARS in TEXT:
+                            enabled = True
+                            changed_now = True
+                        if DISABLE_NARS in TEXT:
+                            enabled = False
+                            changed_now = True
+                        if enabled and not changed_now:
+                            Tell(TEXT.strip()) #was: proc.stdin.write
                     except:
                         print "err"
                         None
