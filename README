@@ -23,7 +23,7 @@ something is a right triangle if it has 3 edges and it has a 90-degree angle
 X is in Z if X is in Y and Y is in Z
 <(&&,<(*,$X,$Z) --> in>,<(*,$Z,$Y) --> in>) ==> <(*,$X,$Y) --> in>>.
 
-what is in the garage?
+what is in the garage
 <(*,?1,garage) --> in>
 
 The project is under MIT license.
